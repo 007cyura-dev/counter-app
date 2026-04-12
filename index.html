@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>カウンター</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    text-align: center;
+    font-family: sans-serif;
+    margin-top: 40px;
+  }
+  #count {
+    font-size: 100px;
+    margin: 30px;
+  }
+  button {
+    font-size: 24px;
+    padding: 15px;
+    margin: 8px;
+  }
+  input {
+    font-size: 20px;
+    width: 80px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<h1>カウンター</h1>
+
+<div id="count">0</div>
+
+<button onclick="increment()">＋</button>
+<button onclick="decrement()">－</button>
+<button onclick="resetCount()">リセット</button>
+
+<br><br>
+
+<button id="loopBtn" onclick="toggleLoop()">ループ：ON</button>
+
+<br><br>
+
+<label>
+  ループ数：
+  <input type="number" id="loopInput" value="5" min="1">
+</label>
+
+<script>
+let count = 0;
+let loopOn = true;
+
+function getMax() {
+  const val = parseInt(document.getElementById("loopInput").value);
+  return isNaN(val) || val < 1 ? 1 : val;
+}
+
+function updateDisplay() {
+  document.getElementById("count").textContent = count;
+  document.getElementById("loopBtn").textContent =
+    "ループ：" + (loopOn ? "ON" : "OFF");
+}
+
+function increment() {
+  const max = getMax();
+
+  if (loopOn) {
+    if (count >= max) {
+      count = 0;
+    } else {
+      count++;
+    }
+  } else {
+    count++;
+  }
+
+  updateDisplay();
+}
+
+function decrement() {
+  if (count > 0) {
+    count--;
+  }
+  updateDisplay();
+}
+
+function resetCount() {
+  count = 0;
+  updateDisplay();
+}
+
+function toggleLoop() {
+  loopOn = !loopOn;
+  updateDisplay();
+}
+
+// 画面タップでカウント（ボタン・入力欄は除外）
+document.body.addEventListener("click", function(e) {
+  if (e.target.tagName !== "BUTTON" && e.target.tagName !== "INPUT") {
+    increment();
+  }
+});
+
+updateDisplay();
+</script>
+
+</body>
+</html>
