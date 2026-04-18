@@ -3,14 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <title>カウンター</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ズーム無効（これが重要） -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <style>
   body {
     text-align: center;
     font-family: sans-serif;
     margin: 0;
-    min-height: 100vh; /* ←重要：画面全体に広げる */
+    min-height: 100vh;
     padding-top: 50px;
+
+    /* ダブルタップズーム防止（補助） */
+    touch-action: manipulation;
   }
 
   #count {
@@ -56,17 +62,20 @@
 let count = 0;
 let loopOn = true;
 
+// 上限取得
 function getMax() {
   const val = parseInt(document.getElementById("loopInput").value);
   return isNaN(val) || val < 1 ? 1 : val;
 }
 
+// 表示更新
 function updateDisplay() {
   document.getElementById("count").textContent = count;
   document.getElementById("loopBtn").textContent =
     "ループ：" + (loopOn ? "ON" : "OFF");
 }
 
+// カウントアップ
 function increment() {
   const max = getMax();
 
@@ -83,38 +92,51 @@ function increment() {
   updateDisplay();
 }
 
+// 減算
 function decrement() {
   if (count > 0) count--;
   updateDisplay();
 }
 
+// リセット
 function resetCount() {
   count = 0;
   updateDisplay();
 }
 
+// ループ切替
 function toggleLoop() {
   loopOn = !loopOn;
   updateDisplay();
 }
 
-// ★スマホ対応（これが重要）
-document.body.addEventListener("touchstart", function(e) {
-  if (!e.target.closest("button") &&
-      !e.target.closest("input") &&
-      !e.target.closest("label")) {
-    increment();
-  }
-});
+// =======================
+// タップ処理（最重要）
+// =======================
 
-// PC用（クリック）
-document.body.addEventListener("click", function(e) {
+// 共通判定（ボタン周り除外）
+function handleTap(e) {
   if (!e.target.closest("button") &&
       !e.target.closest("input") &&
       !e.target.closest("label")) {
     increment();
   }
-});
+}
+
+// デバイス判定
+const isTouchDevice = 'ontouchstart' in window;
+
+// スマホ：touchのみ
+if (isTouchDevice) {
+  document.body.addEventListener("touchstart", function(e) {
+    e.preventDefault(); // 余計な動作防止（ズーム・スクロール）
+    handleTap(e);
+  }, { passive: false });
+}
+// PC：clickのみ
+else {
+  document.body.addEventListener("click", handleTap);
+}
 
 updateDisplay();
 </script>
