@@ -8,7 +8,9 @@
   body {
     text-align: center;
     font-family: sans-serif;
-    margin-top: 50px;
+    margin: 0;
+    min-height: 100vh; /* ←重要：画面全体に広げる */
+    padding-top: 50px;
   }
 
   #count {
@@ -26,15 +28,6 @@
     font-size: 20px;
     width: 80px;
     text-align: center;
-  }
-
-  /* 下タップエリアだけ追加 */
-  #tapArea {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 40%;
-    background: transparent;
   }
 </style>
 </head>
@@ -58,9 +51,6 @@
   ループ数：
   <input type="number" id="loopInput" value="5" min="1">
 </label>
-
-<!-- 下タップ専用エリア -->
-<div id="tapArea"></div>
 
 <script>
 let count = 0;
@@ -94,9 +84,7 @@ function increment() {
 }
 
 function decrement() {
-  if (count > 0) {
-    count--;
-  }
+  if (count > 0) count--;
   updateDisplay();
 }
 
@@ -110,14 +98,22 @@ function toggleLoop() {
   updateDisplay();
 }
 
-// 下エリアタップでカウント
-document.getElementById("tapArea").addEventListener("click", function() {
-  increment();
+// ★スマホ対応（これが重要）
+document.body.addEventListener("touchstart", function(e) {
+  if (!e.target.closest("button") &&
+      !e.target.closest("input") &&
+      !e.target.closest("label")) {
+    increment();
+  }
 });
 
-// ボタン・入力欄の誤タップ防止
-document.querySelectorAll("button, input").forEach(el => {
-  el.addEventListener("click", e => e.stopPropagation());
+// PC用（クリック）
+document.body.addEventListener("click", function(e) {
+  if (!e.target.closest("button") &&
+      !e.target.closest("input") &&
+      !e.target.closest("label")) {
+    increment();
+  }
 });
 
 updateDisplay();
