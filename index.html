@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>カウンター</title>
 
+<!-- ズーム防止 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
@@ -59,17 +60,20 @@
 let count = 0;
 let loopOn = true;
 
+// 最大値取得
 function getMax() {
   const val = parseInt(document.getElementById("loopInput").value);
   return isNaN(val) || val < 1 ? 1 : val;
 }
 
+// 表示更新
 function updateDisplay() {
   document.getElementById("count").textContent = count;
   document.getElementById("loopBtn").textContent =
     "ループ：" + (loopOn ? "ON" : "OFF");
 }
 
+// カウントアップ
 function increment() {
   const max = getMax();
 
@@ -86,51 +90,68 @@ function increment() {
   updateDisplay();
 }
 
+// 減算
 function decrement() {
   if (count > 0) count--;
   updateDisplay();
 }
 
+// リセット
 function resetCount() {
   count = 0;
   updateDisplay();
 }
 
+// ループ切替
 function toggleLoop() {
   loopOn = !loopOn;
   updateDisplay();
 }
 
 // =======================
-// 修正版タップ処理
+// タップ制御（最重要）
 // =======================
 
+// ボタン系判定
 function isControlElement(target) {
   return target.closest("button") ||
          target.closest("input") ||
          target.closest("label");
 }
 
+// タップ処理
+function handleTap(e) {
+
+  // ▼ 下2cm（約80px）を無効
+  const bottomLimit = window.innerHeight - 80;
+
+  // タップ位置取得
+  let touchY;
+  if (e.touches && e.touches.length > 0) {
+    touchY = e.touches[0].clientY;
+  } else {
+    touchY = e.clientY;
+  }
+
+  // 下部なら無視
+  if (touchY > bottomLimit) return;
+
+  // ボタン周り除外
+  if (isControlElement(e.target)) return;
+
+  increment();
+}
+
+// デバイス判定
 const isTouchDevice = 'ontouchstart' in window;
 
+// スマホ
 if (isTouchDevice) {
-  document.body.addEventListener("touchstart", function(e) {
-
-    // ボタンなどは通常動作させる
-    if (isControlElement(e.target)) return;
-
-    // それ以外だけカウント＆デフォルト動作防止
-    e.preventDefault();
-    increment();
-
-  }, { passive: false });
-
-} else {
-  document.body.addEventListener("click", function(e) {
-    if (!isControlElement(e.target)) {
-      increment();
-    }
-  });
+  document.body.addEventListener("touchstart", handleTap, { passive: true });
+}
+// PC
+else {
+  document.body.addEventListener("click", handleTap);
 }
 
 updateDisplay();
